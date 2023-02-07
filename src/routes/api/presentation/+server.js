@@ -5,8 +5,16 @@ import 'dotenv/config';
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function POST({ request }) {
+export async function POST({ request, cookies }) {
 	const { prompt } = await request.json();
+	const limit = cookies.get('limit') || 0;
+	const rate_limit = parseInt(limit.toString(), 10);
+	if (rate_limit > 10){
+		return json({
+			presentation: "You have reached your hourly limit, please try again in a bit",
+			prompt
+		});
+	}
 	const configuration = new Configuration({
 		apiKey: process.env.OPENAI_KEY
 	});
